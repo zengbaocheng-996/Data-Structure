@@ -1,5 +1,8 @@
-#include <stdio.h>
+|      |      | Description                      |
+| ---- | ---- | -------------------------------- |
+| 4    | 串   | 串的定义和实现<br />串的模式匹配 |
 
+```cpp
 //定长顺序存储表示
 #define MAXLEN 255//预定义最大串长为255
 typedef struct {
@@ -69,7 +72,5 @@ void get_nextval(SString T, int nextval[]) {
             j = nextval[j];
     }
 }
+```
 
-int main() {
-    return 0;
-}
