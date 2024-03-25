@@ -799,4 +799,179 @@
         }
         ```
     
-    11. 
+    11. 设计一个算法用于判断带头结点的循环双链表是否对称。
+    
+        让p从左向右扫描，q从右向左扫描，直到它们指向同一结点（p==q，当循环双链表中结点个数为奇数时）或相邻（p->next=q或q->prior=p，当循环双链表中结点个数为偶数时）为止，若它们所指结点值相同，则继续进行下去，否则返回0。若比较全部相等，则返回1。
+    
+        ```cpp
+        int Symmetry(DLinkList L)
+        {
+            DNode *p=L->next, *q=L->prior;//两头工作指针
+            while(p!=q&&q->next!=p)//循环跳出条件
+                if(p->data==q->data)//所指结点值相同则继续比较
+                {
+                    p=p->next;
+                    q=q->prior;
+                }
+            	else//否则，返回0
+                    return 0;//比较结束后返回1
+            return 1；
+        }
+        ```
+    
+    12. 有两个循环单链表，链表头指针分别为h1和h2，编写一个函数将链表h2链接到链表h1之后，要求链接后的链表仍保持循环链表形式。
+    
+        先找到两个链表的尾指针，将第一个链表的尾指针与第二个链表的头结点链接起来，再使之成为循环的。
+    
+        ```cpp
+        LinkList Link(LinkList &h1, LinkList &h2)
+        {
+            //将循环链表h2链接到循环链表h1之后，使之仍保持循环链表的形式
+            LNode *p, *q;//分别指向两个链表的尾结点
+            p=h1;
+            while(p->next!=h1)
+                p=p->next;
+            q=h2;
+            while(q->next!=h2)
+                q=q->next;
+            p->next=h2;
+            q->next=h1;
+            return h1;
+        }
+        ```
+    
+    13. 设有一个带头结点的非循环双链表L，其每个结点中除有pre、data和next域外，还有一个访问频度域freq，其值均初始化为零。每当在链表中进行一次Locate(L,x)运算时，令值x的结点中freq域的值增1，并使此链表中的结点保持按访问频度递减的顺序排列，且最近访问的结点排在频度相同的结点之前，以便使频繁访问的结点总是靠近表头。试编写符合上述要求的Locate(L,x)函数，返回找到结点的地址，类型为指针型。
+    
+        首先在双向链表中查找数据值为x的结点，查到后，将结点从链表上摘下，然后顺着结点的前驱链查找该结点的插入位置（频度递减，且排在同频度的第一个，即向前找到第一个比它的频度大的结点，插入位置为该结点之后），并插入到该位置。
+    
+        ```cpp
+        DLinkList Locate(DLinkList &L, ElemType x)
+        {
+            DNode *p=L->next,*q;//p为工作指针，q为p的前驱，用于查找插入位置
+            while(p&&p->data!=x)
+                p=p->next;//查找值为x的结点
+            if(!p)
+            	exit(0);//不存在值为x的结点
+            else
+            {
+                p->freq++;//令元素值为x的结点的freq域加1
+                if(p->pre==L||p->pre->freq>p->freq)
+                    return p;//p是链表首结点，或freq值小于前驱
+                if(p->next!=NULL)p->next->pre=p->pre;
+                p->pre->next=p->next;//将p结点从链表上摘下
+                q=p->pre;//以下查找p结点的插入位置
+                while(q!=L&&q->freq<=p->freq)
+                    q=q->pre;
+                p->next=q->next;
+                if(q->next!=NULL)q->next->pre=p;//将p结点排在同频率的第一个
+                p->pre=q;
+                q->next=p;
+            }
+            return p;//返回值为x的结点的指针
+        }
+        ```
+    
+    14. 设将n(n>1)个整数存放到不带头结点的单链表L中，设计算法将L中保存的循环序列右移k(0<k<n)个为止。例如，若k=1，则将链表{0,1,2,3}变为{3,0,1,2}。要求：
+    
+        - 给出算法的基本设计思想
+        - 根据设计思想，采用C或C++语言描述算法，关键之处给出注释。
+        - 说明你所设计算法的时间复杂度和空间复杂度
+    
+        首先，遍历链表计算表长n，并找到链表的尾结点，将其与首结点相连，得到一个循环单链表。然后，找到新链表的尾结点，它为原链表的第n-k个结点，令L指向新链表尾结点的下一个结点，并将环断开，得到新链表。
+    
+        ```cpp
+        LNode *Converse(LNode *L, int k)
+        {
+            int n=1;//n用来保存链表的长度
+            LNode *p=L;//p为工作指针
+            while(p->next!=NULL)//计算链表的长度
+            {
+                p=p->next;
+                n++;
+            }//循环执行完后，p指向链表尾结点
+            p->next=L;//将链表连成一个环
+            for(int i=1;i<n-k;i++)//寻找链表的第n-k个结点
+                p=p->next;
+            L=p->next;//令L指向新链表尾结点的下一个结点
+            p->next=NULL;//将环断开
+            return L;
+        }
+        ```
+    
+        本算法的时间复杂度尾O(n)，空间复杂度为O(1)。
+    
+    15. 单链表有环，是指单链表的最后一个结点指向了链表中的某个结点（通常单链表的最后一个结点的指针域是空的）。试编写算法判断单链表是否存在环。
+    
+        - 给出算法的基本设计思想。
+        - 根据设计思想，采用C或C++语言描述算法，关键之处给出注释。
+        - 说明你所设计算法的时间复杂度和空间复杂度。
+    
+        设置快慢两个指针分别为fast和slow最初都指向链表头head。slow每次走一步，即slow=slow->next；fast每次走两步，即fast=fast->next->next。fast比slow走得快，若有环，则fast一定先进入环，而slow后进入环。两个指针都进入环后，经过若干操作后两个指针定能在环上相遇。这样就可以判断一个链表是否有环。
+    
+        （如图）当slow刚进入环时，fast早已进入环。因为fast每次比slow多走一步，且fast与slow的距离小于环的长度，所以fast与slow相遇时，slow所走的距离不超过环的长度。
+    
+        设头结点到环的入口点的距离为a，环的入口点沿着环的方向到相遇点的距离为x，环长为r，相遇时fast绕过了n圈。则有2(a+x)=a+n*r+x，即a=nr-x。显然从头结点到环的入口点的距离等于n倍的环减去环的入口点到相遇点的距离。因此可设置两个指针，一个指向head,一个指向相遇点，两个指针同步移动（均为一次走一步），相遇点即为环的入口点。
+    
+        ```cpp
+        LNode* FindLoopStart(LNode *head)
+        {
+            LNode *fast=head, *slow=head;//设置快慢两个指针
+            while(fast!=NULL&&fast->next!=NULL)
+            {
+                slow=slow->next;//每次走一步
+                fast=fast->next->next;//每次走两步
+                if(slow==fast)break;//相遇
+            }
+            if(fast==NULL||fast->next==NULL)
+                return NULL;//没有环，返回NULL
+            LNode *p1=head, *p2=slow;//分别指向开始点、相遇点
+            while(p1!=p2)
+            {
+                p1=p1->next;
+                p2=p2->next;
+            }
+            return p1;//返回入口点
+        }
+        ```
+    
+        当fast与slow相遇时，slow肯定没有遍历完链表，故算法的时间复杂度为O(n)，空间复杂度为O(1)。
+    
+    16. 设有一个长度n（n为偶数）的不带头结点的单链表，且结点值都大于0，设计算法求这个单链表的最大孪生和。孪生和定义为一个结点值与其孪生结点值之和，对于第i个结点（从0开始），其孪生结点为第n-i-1个结点。要求：
+    
+        - 给出算法的基本设计思想。
+        - 根据设计思想，采用C或C++语言描述算法，关键之处给出注释。
+        - 说明你的算法的时间复杂度和空间复杂度。
+    
+        设置快、慢两个指针分别为fast和slow，初始时slow指向L（第一个结点），fast指向L->next（第二个结点），之后slow每次走一步，fast每次走两步。当fast指向表尾（第n个结点时），slow正好指向链表的中间点（第n/2个结点），即slow正好指向链表前半部分的最后一个结点。将链表的后半部分逆置，然后设置两个指针分别指向链表前半部分和后半部分的首结点，在遍历过程中计算两个指针所指结点的元素之和，并维护最大值。
+    
+        ```cpp
+        int PairSum(LinkList L)
+        {
+            LNode *fast=L->next,*slow=L;//利用快慢双指针找到链表的中间点
+            while(fast!=NULL&&fast->next!=NULL)
+            {
+                fast=fast->next->next;//快指针每次走两步
+                slow=slow->next;//慢指针每次走一步
+            }
+            LNode *newHead=NULL,*p=slow->next,*tmp;
+            while(p!=NULL)//反转链表后一半部分的元素，采用头插法
+            {
+                tmp=p->next;//p指向当前待插入结点，令tmp指向其下一结点
+                p->next=newHead;//将p所指结点插入到新链表的首结点之前
+                newHead=p;//newHead指向刚才新插入的结点，作为新的首结点
+                p=tmp;//当前待处理结点变为下一结点
+            }
+            int mx=0;p=L;
+            LNode *q=newHead;
+            while(p!=NULL)//用p和q分别遍历两个链表
+            {
+                if((p->data+q->data)>mx)//用mx记录最大值
+                    mx=p->data+q->data;
+                p=p->next;
+                q=q->next;
+            }
+            return mx;
+        }
+        ```
+    
+        本算法的时间复杂度为O(n)，空间复杂度为O(1)。
