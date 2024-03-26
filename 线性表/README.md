@@ -982,11 +982,97 @@
         - 描述算法的详细实现步骤。
         - 根据设计思想和实现步骤，采用程序设计语言描述算法（使用C、C++或Java语言实现），关键之处请给出简要注释。
     
+        问题的关键是设计一个尽可能高效的算法，通过链表的一次遍历，找到倒数第k个结点的位置。算法的基本设计思想是：定义两个指针变量p和q，初始时均指向头结点的下一个结点（链表的第一个结点），p指针沿链表移动；当p指针移动到第k个结点时，q指针开始与p指针同步移动；当p指针移动到最后一个结点时，q指针所指示结点为倒数第k个结点。以上过程对链表仅进行一遍扫描。
+    
+        第一步：count=0，p和q指向链表表头结点的下一个结点。
+    
+        第二步：若p为空，转第五步。
+    
+        第三步：若count等于k，则q指向下一个结点；否则count=count+1。
+    
+        第四步：p指向下一个结点，转第二步。
+    
+        第五步：若count等于k，则查找成功，输出该结点的data域的值，返回1；否则，说明k值超过了线性表的长度，查找失败，返回0。
+    
+        第六步：算法结束。
+    
+        ```cpp
+        typedef int ElemType;//链表数据的类型定义
+        typedef struct LNode{//链表结点的结构定义
+            ElemType data;//结点数据
+            struct LNode *link;//结点链接指针
+        }LNode, *LinkList;
+        int Search_k(LinkList list, int k)
+        {
+            LNode *p=list->link, *q=list->link;//指针p、q指示第一个结点
+            int count=0;
+            while(p!=NULL)//遍历链表直到最后一个结点
+            {
+                if(count<k)count++;//计数，若count<k只移动p
+                else q=q->link;
+                p=p->link;//之后让p、q同步移动
+            }
+            if(count<k)
+                return 0;//查找失败返回0
+            else//否则打印并返回1
+            {
+                printf("%d",q->data);
+            	return 1;
+            }
+        }
+        ```
+    
     18. 假定采用待头结点的单链表保存单词，当两个单词有相同后缀时，可共享相同的后缀存储空间，例如，loading和being的存储映像如下图所示。设str1和str2分别指向两个单词所在单链表的头结点，链表结点结构为[data][next\]，请设计一个时间上尽可能高效的算法，找出由str1和str2所指向两个链表共同后缀的起始位置（如图中字符i所在结点的位置p）。要求：
     
         - 给出算法的基本设计思想。
-        - 根据设计思想，采用C或C++或Java于洋描述算法，关键之处给出注释。
+        - 根据设计思想，采用C或C++或Java语言描述算法，关键之处给出注释。
         - 说明你所设计算法的时间复杂度。
+    
+        顺序遍历两个链表到尾结点时，并不能保证两个链表同时到达尾结点。这是因为两个链表的长度不同。假设一个链表比另一个链表长k个结点，我们先在长链表上遍历k个结点，之后同步遍历两个链表，这样就能够保证它们同时到达最后一个结点。因为两个链表从第一个公共结点到链表的尾结点都是重合的，所以它们肯定同时到达第一个公共结点。
+    
+        第一步：分别求出str1和str2所指的两个链表的长度m和n。
+    
+        第二步：将两个链表以表尾对齐：令指针p、q分别指向str1和str2的头结点，若m>=n，则指针p先走，使p指向链表中的第m-n+1个结点；若m<n，则使q指向链表中的第n-m+1个结点，即使指针p和q所指的结点到表尾的长度相等。
+    
+        第三步：反复将指针p和q同步向后移，并判断它们是否指向同一结点。当p、q指向同一结点，则该点即为所求的共同后缀的起始位置。
+    
+        ```cpp
+        typedef struct Node{
+            char data;
+            struct Node *next;
+        }SNode;
+        //求链表长度的函数
+        int listlen(SNode *head)
+        {
+            int len=0;
+            while(head->next!=NULL)
+            {
+                len++;
+                head=head->next;
+            }
+            return len;
+        }
+        //找出共同后缀的起始地址
+        SNode* find_list(SNode *str1, SNode *str2)
+        {
+            int m,n;
+            SNode *p,*q;
+            m=listlen(str1);//求str1的长度,O(m)
+            n=listlen(str2);//求str2的长度,O(n)
+            for(p=str1;m>n;m--)//若m>n,使p指向链表中的第m-n+1个结点
+                p=p->next;
+            for(q=str2;m<n;n--)//若m<n,使q指向链表中的第n-m+1个结点
+                q=q->next;
+            while(p->next!=NULL&&p->next!=q->next)//查找共同后缀起始点
+            {
+                p=p->next;//两个指针同步向后移动
+                q=q->next;
+            }
+            return p->next;//返回共同后缀的起始地址
+        }
+        ```
+    
+        时间复杂度为O(len1+len2)或O(max(len1,len2))，其中len1、len2分别为两个链表的长度。
     
     19. 用单链表保存m个整数，结点结构为[data][link\]，且|data|<=n（n为正整数）。现要求设计一个时间复杂度尽可能高效的算法，对于链表中data的绝对值相等的结点，仅保留第一次出现的结点而删除其余绝对值相等的结点。
     
@@ -994,6 +1080,46 @@
         - 使用C或C++语言，给出单链表结点的数据类型定义。
         - 根据设计思想，采用C或C++语言描述算法，关键之处给出注释。
         - 说明你所设计算法的时间复杂度和空间复杂度。
+    
+        算法的核心思想是用空间换时间。使用辅助数组记录链表中已出现的数值，从而只需对链表进行一趟扫描。
+    
+        因为|data|<=n，故辅助数组q的大小为n+1，各元素的初值均为0。依次扫描链表中的各结点，同时检查q[|data|]的值，若为0则保留该结点，并令q[|data|]=1；否则将该结点从单链表中删除。
+    
+        ```cpp
+        typedef struct node
+        {
+            int data;
+            struct node *link;
+        }NODE;
+        Typedef NODE *PNODE;
+        ```
+    
+        ```cpp
+        void func(PNODE h, int n)
+        {
+            PNODE p=h,r;
+            int *q,m;
+            q=(int *)malloc(sizeof(int)*(n+1));//申请n+1个位置的辅助空间
+            for(int i=0;i<n+1;i++)//数组元素初值置0
+                *(q+i)=0;
+            while(p->link!=NULL)
+            {
+                m=p->link->data>0?p->link->data:-p->link->data;
+                if(*(q+m)==0)//判断该结点的data是否已出现过
+                {
+                    *(q+m)=1;//首次出现
+                    p=p->link;//保留
+                }
+                else//重复出现
+                {
+                    r=p->link;//删除
+                    p->link=r->link;
+                    free(r);
+                }
+            }
+            free(q);
+        }
+        ```
     
     20. 设线性表L=(a1,a2,a3,...,an-2,an-1,an)采用带头结点的单链表保存，链表中的结点定义如下：
     
